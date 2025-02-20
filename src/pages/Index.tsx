@@ -3,13 +3,16 @@ import { JobSearch } from "@/components/JobSearch";
 import { JobCard } from "@/components/JobCard";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Job } from "@/types/job";
 import { loadJobs } from "@/utils/csv-loader";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Index() {
   const [recentJobs, setRecentJobs] = useState<Job[]>([]);
   const [bookmarkedJobs, setBookmarkedJobs] = useState<string[]>([]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -25,6 +28,10 @@ export default function Index() {
   }, []);
 
   const handleBookmark = (jobId: string) => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
     setBookmarkedJobs((prev) => {
       const newBookmarks = prev.includes(jobId)
         ? prev.filter((id) => id !== jobId)
@@ -87,26 +94,43 @@ export default function Index() {
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
             Recent Job Opportunities
           </h2>
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
-            {recentJobs.map((job) => (
-              <JobCard
-                key={job.id}
-                job={job}
-                onBookmark={handleBookmark}
-                isBookmarked={bookmarkedJobs.includes(job.id)}
-              />
-            ))}
-          </div>
-          <div className="text-center">
-            <Link to="/jobs">
+          {user ? (
+            <>
+              <div className="grid md:grid-cols-3 gap-8 mb-8">
+                {recentJobs.map((job) => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    onBookmark={handleBookmark}
+                    isBookmarked={bookmarkedJobs.includes(job.id)}
+                  />
+                ))}
+              </div>
+              <div className="text-center">
+                <Link to="/jobs">
+                  <Button
+                    size="lg"
+                    className="bg-job-primary hover:bg-job-hover transition-colors"
+                  >
+                    View All Jobs
+                  </Button>
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div className="text-center">
+              <p className="text-lg text-gray-600 mb-6">
+                Sign in to view job listings and start your job search journey
+              </p>
               <Button
                 size="lg"
                 className="bg-job-primary hover:bg-job-hover transition-colors"
+                onClick={() => navigate("/auth")}
               >
-                View All Jobs
+                Sign In to View Jobs
               </Button>
-            </Link>
-          </div>
+            </div>
+          )}
         </div>
       </section>
     </div>

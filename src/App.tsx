@@ -33,15 +33,8 @@ function App() {
           <BrowserRouter>
             <Navbar />
             <Routes>
+              <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Index />
-                  </ProtectedRoute>
-                }
-              />
               <Route
                 path="/jobs"
                 element={

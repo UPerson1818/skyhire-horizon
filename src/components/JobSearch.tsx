@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Search } from "lucide-react";
 import { loadJobs } from "@/utils/csv-loader";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Command,
   CommandEmpty,
@@ -27,6 +28,7 @@ export function JobSearch() {
   const [jobTitles, setJobTitles] = useState<string[]>([]);
   const [locations, setLocations] = useState<string[]>([]);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -41,6 +43,11 @@ export function JobSearch() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    
     if (role || location) {
       const params = new URLSearchParams();
       if (role) params.append("role", role);
