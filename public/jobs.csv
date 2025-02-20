@@ -1,0 +1,14 @@
+
+job_title,company,location,salary,skills,years_of_experience,mode_of_working,posting_date
+Software Engineer,Google,Mountain View CA,"$150,000 - $200,000","[""React"", ""TypeScript"", ""Node.js""]",3-5,Remote,2024-03-01
+Product Designer,Apple,Cupertino CA,"$130,000 - $180,000","[""Figma"", ""UI/UX"", ""Product Design""]",2-4,Hybrid,2024-03-02
+Data Scientist,Microsoft,Seattle WA,"$140,000 - $190,000","[""Python"", ""Machine Learning"", ""SQL""]",4-6,On-site,2024-03-03
+Frontend Developer,Meta,Menlo Park CA,"$145,000 - $195,000","[""JavaScript"", ""React"", ""CSS""]",2-4,Remote,2024-03-04
+DevOps Engineer,Amazon,Seattle WA,"$160,000 - $210,000","[""AWS"", ""Docker"", ""Kubernetes""]",5-7,Hybrid,2024-03-05
+Backend Developer,Netflix,Los Gatos CA,"$155,000 - $205,000","[""Java"", ""Spring Boot"", ""MongoDB""]",4-6,Remote,2024-03-06
+UX Researcher,Airbnb,San Francisco CA,"$125,000 - $175,000","[""User Research"", ""Analytics"", ""Prototyping""]",3-5,On-site,2024-03-07
+Machine Learning Engineer,Tesla,Austin TX,"$170,000 - $220,000","[""TensorFlow"", ""PyTorch"", ""Computer Vision""]",5-8,Hybrid,2024-03-08
+Full Stack Developer,Twitter,San Francisco CA,"$145,000 - $195,000","[""React"", ""Node.js"", ""PostgreSQL""]",3-6,Remote,2024-03-09
+Product Manager,Uber,San Francisco CA,"$160,000 - $210,000","[""Product Strategy"", ""Agile"", ""Analytics""]",5-7,Hybrid,2024-03-10
+Cloud Architect,Microsoft,Redmond WA,"$180,000 - $230,000","[""Azure"", ""Cloud Architecture"", ""Microservices""]",6-8,Remote,2024-03-11
+Mobile Developer,Apple,Cupertino CA,"$140,000 - $190,000","[""Swift"", ""iOS"", ""Mobile Design""]",3-5,On-site,2024-03-12
