@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import {
@@ -9,14 +8,29 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { BookmarkIcon, HomeIcon, LogOutIcon, UserIcon } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 export function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Logged out successfully",
+        description: "Come back soon!",
+      });
+      navigate("/auth");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -30,25 +44,27 @@ export function Navbar() {
             SKY-HIRE
           </Link>
 
-          <div className="hidden md:flex items-center space-x-8">
-            <Link
-              to="/recommended"
-              className="text-gray-600 hover:text-job-primary transition-colors flex items-center gap-2"
-            >
-              <HomeIcon className="w-4 h-4" />
-              Recommended Jobs
-            </Link>
-            <Link
-              to="/bookmarks"
-              className="text-gray-600 hover:text-job-primary transition-colors flex items-center gap-2"
-            >
-              <BookmarkIcon className="w-4 h-4" />
-              Bookmarks
-            </Link>
-          </div>
+          {user && (
+            <div className="hidden md:flex items-center space-x-8">
+              <Link
+                to="/recommended"
+                className="text-gray-600 hover:text-job-primary transition-colors flex items-center gap-2"
+              >
+                <HomeIcon className="w-4 h-4" />
+                Recommended Jobs
+              </Link>
+              <Link
+                to="/bookmarks"
+                className="text-gray-600 hover:text-job-primary transition-colors flex items-center gap-2"
+              >
+                <BookmarkIcon className="w-4 h-4" />
+                Bookmarks
+              </Link>
+            </div>
+          )}
 
           <div>
-            {isLoggedIn ? (
+            {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -59,9 +75,9 @@ export function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem className="cursor-pointer">
+                  <DropdownMenuItem className="cursor-default">
                     <UserIcon className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                    <span>{user.email}</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="cursor-pointer text-red-600"
@@ -74,7 +90,7 @@ export function Navbar() {
               </DropdownMenu>
             ) : (
               <Button
-                onClick={() => setIsLoggedIn(true)}
+                onClick={() => navigate("/auth")}
                 className="bg-job-primary hover:bg-job-hover transition-colors"
               >
                 Login / Sign Up
