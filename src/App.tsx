@@ -10,6 +10,7 @@ import { Navbar } from "./components/Navbar";
 import Index from "./pages/Index";
 import Jobs from "./pages/Jobs";
 import Bookmarks from "./pages/Bookmarks";
+import RecommendedJobs from "./pages/RecommendedJobs";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -44,6 +45,14 @@ function App() {
                 }
               />
               <Route
+                path="/recommended"
+                element={
+                  <ProtectedRoute>
+                    <RecommendedJobs />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/bookmarks"
                 element={
                   <ProtectedRoute>
@@ -61,3 +70,4 @@ function App() {
 }
 
 export default App;
+
