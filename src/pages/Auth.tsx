@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { LucideGithub } from "lucide-react";
+import { Chrome } from "lucide-react"; // Changed from LucideGithub to Chrome for Google icon
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -27,7 +27,7 @@ export default function Auth() {
         title: isLogin ? "Welcome back!" : "Account created successfully",
         description: "You are now logged in",
       });
-      navigate("/"); // Changed from /jobs to /
+      navigate("/");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -44,7 +44,7 @@ export default function Auth() {
         title: "Welcome!",
         description: "Successfully signed in with Google",
       });
-      navigate("/"); // Redirect to homepage
+      navigate("/");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -108,9 +108,9 @@ export default function Auth() {
           <Button
             type="button"
             onClick={handleGoogleSignIn}
-            className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
           >
-            <LucideGithub className="w-5 h-5 mr-2" />
+            <Chrome className="w-5 h-5" />
             Sign in with Google
           </Button>
         </div>
