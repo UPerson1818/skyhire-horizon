@@ -5,12 +5,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { LucideGithub } from "lucide-react";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -26,7 +27,24 @@ export default function Auth() {
         title: isLogin ? "Welcome back!" : "Account created successfully",
         description: "You are now logged in",
       });
-      navigate("/jobs");
+      navigate("/"); // Changed from /jobs to /
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+      toast({
+        title: "Welcome!",
+        description: "Successfully signed in with Google",
+      });
+      navigate("/"); // Redirect to homepage
     } catch (error: any) {
       toast({
         title: "Error",
@@ -76,6 +94,26 @@ export default function Auth() {
             </Button>
           </div>
         </form>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">Or continue with</span>
+          </div>
+        </div>
+
+        <div>
+          <Button
+            type="button"
+            onClick={handleGoogleSignIn}
+            className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+          >
+            <LucideGithub className="w-5 h-5 mr-2" />
+            Sign in with Google
+          </Button>
+        </div>
 
         <div className="text-center">
           <button

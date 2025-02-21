@@ -23,7 +23,7 @@ export function Navbar() {
         title: "Logged out successfully",
         description: "Come back soon!",
       });
-      navigate("/auth");
+      navigate("/"); // Changed from /auth to /
     } catch (error: any) {
       toast({
         title: "Error",
