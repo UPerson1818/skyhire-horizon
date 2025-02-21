@@ -1,59 +1,24 @@
-import { useEffect, useState } from "react";
+
+import { useState } from "react";
 import { JobCard } from "@/components/JobCard";
 import { Job } from "@/types/job";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/lib/supabase";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { loadJobs } from "@/utils/csv-loader";
 
 export default function RecommendedJobs() {
   const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
-  const [bookmarkedJobs, setBookmarkedJobs] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchRecommendedJobs = async () => {
-      if (!user) return;
-
-      try {
-        // First, check if the jobs table exists by trying to fetch all jobs
-        const { data: allJobs, error: jobsError } = await supabase
-          .from('jobs')
-          .select('*')
-          .limit(5);
-
-        if (jobsError) {
-          console.error("Error fetching jobs:", jobsError);
-          toast({
-            title: "Database not set up",
-            description: "Please set up the jobs database first.",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        if (allJobs && allJobs.length > 0) {
-          setRecommendedJobs(allJobs); // For now, just show all jobs
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Error fetching recommended jobs:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load recommended jobs",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
+  useState(() => {
+    const fetchJobs = async () => {
+      const jobs = await loadJobs();
+      setRecommendedJobs(jobs.slice(0, 5)); // Just show first 5 jobs
+      setLoading(false);
     };
-
-    fetchRecommendedJobs();
-  }, [user, toast]);
+    fetchJobs();
+  }, []);
 
   const handleViewAllJobs = () => {
     navigate('/jobs');
@@ -92,8 +57,8 @@ export default function RecommendedJobs() {
               <JobCard
                 key={job.id}
                 job={job}
-                onBookmark={() => {}} // Will be implemented later
-                isBookmarked={bookmarkedJobs.includes(job.id)}
+                onBookmark={() => {}}
+                isBookmarked={false}
               />
             ))}
           </div>
