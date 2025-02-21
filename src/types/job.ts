@@ -2,8 +2,8 @@
 export interface Job {
   id: string;
   job_title: string;
-  company: string;
   company_name: string;
+  company?: string;
   location?: string;
   salary?: string;
   salary_range?: string;
@@ -28,4 +28,3 @@ export interface JobInteraction {
   interaction_type: 'apply' | 'bookmark';
   created_at: string;
 }
-
