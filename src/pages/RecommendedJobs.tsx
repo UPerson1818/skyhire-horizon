@@ -95,9 +95,9 @@ export default function RecommendedJobs() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-24 pb-16">
-        <div className="container px-4 mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">
+      <div className="w-full min-h-[calc(100vh-4rem)] bg-background pt-16">
+        <div className="container mx-auto px-4">
+          <h1 className="text-3xl font-bold text-foreground mb-8">
             Loading recommendations...
           </h1>
         </div>
@@ -106,22 +106,22 @@ export default function RecommendedJobs() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24 pb-16">
-      <div className="container px-4 mx-auto">
+    <div className="w-full min-h-[calc(100vh-4rem)] bg-background pt-16">
+      <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-foreground">
             Recommended Jobs
           </h1>
           <Button 
             onClick={handleViewAllJobs}
-            className="bg-job-primary hover:bg-job-hover"
+            variant="default"
           >
             View All Jobs
           </Button>
         </div>
 
         {recommendedJobs.length > 0 ? (
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recommendedJobs.map((job) => (
               <JobCard
                 key={job.id}
@@ -133,12 +133,12 @@ export default function RecommendedJobs() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               No recommendations available yet. Check out all available jobs!
             </p>
             <Button 
               onClick={handleViewAllJobs}
-              className="bg-job-primary hover:bg-job-hover"
+              variant="default"
             >
               Browse All Jobs
             </Button>
