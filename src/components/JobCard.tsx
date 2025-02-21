@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { supabase } from "@/lib/supabase"; // Make sure this is imported
+import { supabase } from "@/lib/supabase";
 
 interface JobCardProps {
   job: Job;
@@ -39,7 +39,7 @@ export function JobCard({ job, onBookmark, isBookmarked }: JobCardProps) {
       const { error } = await supabase
         .from('job_interactions')
         .insert({
-          user_id: user.id,
+          user_id: user.uid, // Changed from user.id to user.uid
           job_id: job.id,
           interaction_type: 'apply',
           created_at: new Date().toISOString(),
@@ -112,4 +112,3 @@ export function JobCard({ job, onBookmark, isBookmarked }: JobCardProps) {
     </Card>
   );
 }
-

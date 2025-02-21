@@ -22,7 +22,7 @@ export default function RecommendedJobs() {
         const { data: interactions } = await supabase
           .from('job_interactions')
           .select('job_id')
-          .eq('user_id', user.id)
+          .eq('user_id', user.uid) // Changed from user.id to user.uid
           .eq('interaction_type', 'apply')
           .order('created_at', { ascending: false })
           .limit(1);
@@ -122,4 +122,3 @@ export default function RecommendedJobs() {
     </div>
   );
 }
-
