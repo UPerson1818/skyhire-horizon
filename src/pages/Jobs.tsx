@@ -1,85 +1,158 @@
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { JobCard } from "@/components/JobCard";
-import { Pagination } from "@/components/Pagination";
+import { useState, useEffect } from "react";
 import { Job } from "@/types/job";
-import { loadJobs, filterJobs } from "@/utils/csv-loader";
+import { JobCard } from "@/components/JobCard";
+import { JobSearch } from "@/components/JobSearch";
+import { useSearchParams } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Jobs() {
-  const [searchParams] = useSearchParams();
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
+  const { user } = useAuth();
   const [bookmarkedJobs, setBookmarkedJobs] = useState<string[]>([]);
-  const jobsPerPage = 9;
 
+  // Fetch jobs based on search params
   useEffect(() => {
     const fetchJobs = async () => {
-      const allJobs = await loadJobs();
-      setJobs(allJobs);
-      
-      const role = searchParams.get("role");
-      const location = searchParams.get("location");
-      
-      if (role || location) {
-        const filtered = filterJobs(allJobs, { role, location });
-        setFilteredJobs(filtered);
-      } else {
-        setFilteredJobs(allJobs);
+      try {
+        const role = searchParams.get("role");
+        const location = searchParams.get("location");
+
+        let query = supabase.from("jobs").select("*");
+
+        if (role) {
+          query = query.ilike("job_title", `%${role}%`);
+        }
+        if (location) {
+          query = query.ilike("location", `%${location}%`);
+        }
+
+        const { data, error } = await query;
+
+        if (error) throw error;
+
+        setJobs(data || []);
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch jobs. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchJobs();
+  }, [searchParams, toast]);
 
-    const savedBookmarks = localStorage.getItem("bookmarkedJobs");
-    if (savedBookmarks) {
-      setBookmarkedJobs(JSON.parse(savedBookmarks));
+  // Fetch bookmarked jobs
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchBookmarks = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("job_interactions")
+          .select("job_id")
+          .eq("user_id", user.uid)
+          .eq("interaction_type", "bookmark");
+
+        if (error) throw error;
+
+        setBookmarkedJobs(data.map((bookmark) => bookmark.job_id));
+      } catch (error) {
+        console.error("Error fetching bookmarks:", error);
+      }
+    };
+
+    fetchBookmarks();
+  }, [user]);
+
+  const handleBookmark = async (jobId: string) => {
+    if (!user) {
+      toast({
+        title: "Please sign in",
+        description: "You need to be signed in to bookmark jobs",
+        variant: "destructive",
+      });
+      return;
     }
-  }, [searchParams]);
 
-  const handleBookmark = (jobId: string) => {
-    setBookmarkedJobs((prev) => {
-      const newBookmarks = prev.includes(jobId)
-        ? prev.filter((id) => id !== jobId)
-        : [...prev, jobId];
-      localStorage.setItem("bookmarkedJobs", JSON.stringify(newBookmarks));
-      return newBookmarks;
-    });
+    try {
+      const isBookmarked = bookmarkedJobs.includes(jobId);
+
+      if (isBookmarked) {
+        // Remove bookmark
+        await supabase
+          .from("job_interactions")
+          .delete()
+          .eq("user_id", user.uid)
+          .eq("job_id", jobId)
+          .eq("interaction_type", "bookmark");
+
+        setBookmarkedJobs(bookmarkedJobs.filter((id) => id !== jobId));
+      } else {
+        // Add bookmark
+        await supabase.from("job_interactions").insert({
+          user_id: user.uid,
+          job_id: jobId,
+          interaction_type: "bookmark",
+          created_at: new Date().toISOString(),
+        });
+
+        setBookmarkedJobs([...bookmarkedJobs, jobId]);
+      }
+
+      toast({
+        title: isBookmarked ? "Bookmark removed" : "Job bookmarked",
+        description: isBookmarked
+          ? "This job has been removed from your bookmarks"
+          : "This job has been added to your bookmarks",
+      });
+    } catch (error) {
+      console.error("Error updating bookmark:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update bookmark. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const indexOfLastJob = currentPage * jobsPerPage;
-  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
-  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <JobSearch />
+        <div className="mt-8 text-center">Loading jobs...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24 pb-16">
-      <div className="container px-4 mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          {searchParams.get("role") || searchParams.get("location")
-            ? "Search Results"
-            : "All Jobs"}
-        </h1>
-
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
-          {currentJobs.map((job) => (
-            <JobCard
-              key={job.id}
-              job={job}
-              onBookmark={handleBookmark}
-              isBookmarked={bookmarkedJobs.includes(job.id)}
-            />
-          ))}
-        </div>
-
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
+    <div className="container mx-auto px-4 py-8">
+      <JobSearch />
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {jobs.map((job) => (
+          <JobCard
+            key={job.id}
+            job={job}
+            onBookmark={handleBookmark}
+            isBookmarked={bookmarkedJobs.includes(job.id)}
           />
-        )}
+        ))}
       </div>
+      {jobs.length === 0 && (
+        <div className="text-center mt-8">
+          <p className="text-gray-500">No jobs found. Try adjusting your search.</p>
+        </div>
+      )}
     </div>
   );
 }
