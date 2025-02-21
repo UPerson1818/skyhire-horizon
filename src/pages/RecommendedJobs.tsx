@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { JobCard } from "@/components/JobCard";
 import { Job } from "@/types/job";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ export default function RecommendedJobs() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useState(() => {
+  useEffect(() => {
     const fetchJobs = async () => {
       const jobs = await loadJobs();
       setRecommendedJobs(jobs.slice(0, 5)); // Just show first 5 jobs
