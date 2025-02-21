@@ -1,10 +1,10 @@
 
-import Jobs from "./Jobs";
+import RecommendedJobs from "./RecommendedJobs";
 
 export default function Index() {
   return (
     <main>
-      <Jobs />
+      <RecommendedJobs />
     </main>
   );
 }
