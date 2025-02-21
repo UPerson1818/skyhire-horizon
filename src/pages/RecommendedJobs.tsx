@@ -4,21 +4,48 @@ import { JobCard } from "@/components/JobCard";
 import { Job } from "@/types/job";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { loadJobs } from "@/utils/csv-loader";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 export default function RecommendedJobs() {
   const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
-    const fetchJobs = async () => {
-      const jobs = await loadJobs();
-      setRecommendedJobs(jobs.slice(0, 5)); // Just show first 5 jobs
-      setLoading(false);
+    const fetchRecommendedJobs = async () => {
+      try {
+        if (!user) {
+          setRecommendedJobs([]);
+          setLoading(false);
+          return;
+        }
+
+        // Call the get_recommended_jobs function
+        const { data, error } = await supabase.rpc('get_recommended_jobs', {
+          p_user_id: user.id
+        });
+
+        if (error) throw error;
+
+        setRecommendedJobs(data || []);
+      } catch (error) {
+        console.error('Error fetching recommended jobs:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch recommended jobs. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchJobs();
-  }, []);
+
+    fetchRecommendedJobs();
+  }, [user, toast]);
 
   const handleViewAllJobs = () => {
     navigate('/jobs');
@@ -64,9 +91,15 @@ export default function RecommendedJobs() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-600 mb-4">
-              No recommendations available yet. Check out all available jobs!
-            </p>
+            {user ? (
+              <p className="text-gray-600 mb-4">
+                No recommendations available yet. Complete your profile or interact with more jobs to get personalized recommendations!
+              </p>
+            ) : (
+              <p className="text-gray-600 mb-4">
+                Sign in to get personalized job recommendations!
+              </p>
+            )}
             <Button 
               onClick={handleViewAllJobs}
               variant="default"
