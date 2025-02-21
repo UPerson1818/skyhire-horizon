@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { JobCard } from "@/components/JobCard";
 import { Job } from "@/types/job";
@@ -37,42 +36,9 @@ export default function RecommendedJobs() {
           return;
         }
 
-        // If we have jobs, try to get recommendations
         if (allJobs && allJobs.length > 0) {
-          const { data: interactions } = await supabase
-            .from('job_interactions')
-            .select('job_id')
-            .eq('user_id', user.uid)
-            .eq('interaction_type', 'apply')
-            .order('created_at', { ascending: false })
-            .limit(1);
-
-          if (interactions && interactions.length > 0) {
-            const lastAppliedJobId = interactions[0].job_id;
-            
-            const { data: lastJob } = await supabase
-              .from('jobs')
-              .select('category, industry')
-              .eq('id', lastAppliedJobId)
-              .single();
-
-            if (lastJob) {
-              const { data: similarJobs } = await supabase
-                .from('jobs')
-                .select('*')
-                .eq('category', lastJob.category)
-                .eq('industry', lastJob.industry)
-                .neq('id', lastAppliedJobId)
-                .limit(10);
-
-              if (similarJobs) {
-                setRecommendedJobs(similarJobs);
-              }
-            }
-          } else {
-            // If no applications yet, just show some random jobs
-            setRecommendedJobs(allJobs);
-          }
+          setRecommendedJobs(allJobs); // For now, just show all jobs
+          setLoading(false);
         }
       } catch (error) {
         console.error("Error fetching recommended jobs:", error);
@@ -95,9 +61,9 @@ export default function RecommendedJobs() {
 
   if (loading) {
     return (
-      <div className="w-full min-h-[calc(100vh-4rem)] bg-background pt-16">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold text-foreground mb-8">
+      <div className="min-h-screen bg-white py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">
             Loading recommendations...
           </h1>
         </div>
@@ -106,10 +72,10 @@ export default function RecommendedJobs() {
   }
 
   return (
-    <div className="w-full min-h-[calc(100vh-4rem)] bg-background pt-16">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-white py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-3xl font-bold text-gray-900">
             Recommended Jobs
           </h1>
           <Button 
@@ -121,7 +87,7 @@ export default function RecommendedJobs() {
         </div>
 
         {recommendedJobs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {recommendedJobs.map((job) => (
               <JobCard
                 key={job.id}
@@ -133,7 +99,7 @@ export default function RecommendedJobs() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">
+            <p className="text-gray-600 mb-4">
               No recommendations available yet. Check out all available jobs!
             </p>
             <Button 
