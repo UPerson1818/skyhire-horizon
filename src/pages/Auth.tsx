@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Chrome } from "lucide-react"; // Changed from LucideGithub to Chrome for Google icon
+import { Chrome } from "lucide-react";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -39,13 +38,16 @@ export default function Auth() {
 
   const handleGoogleSignIn = async () => {
     try {
+      console.log("Starting Google sign-in process...");
       await signInWithGoogle();
+      console.log("Google sign-in successful");
       toast({
         title: "Welcome!",
         description: "Successfully signed in with Google",
       });
       navigate("/");
     } catch (error: any) {
+      console.error("Google sign-in error:", error);
       toast({
         title: "Error",
         description: error.message,
